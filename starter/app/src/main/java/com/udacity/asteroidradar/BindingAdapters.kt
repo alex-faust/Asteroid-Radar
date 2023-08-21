@@ -5,6 +5,7 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.main.AsteroidRvAdapter
+import com.udacity.asteroidradar.models.Asteroid
 
 @BindingAdapter("statusIcon")
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
@@ -40,4 +41,10 @@ fun bindTextViewToKmUnit(textView: TextView, number: Double) {
 fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
     val context = textView.context
     textView.text = String.format(context.getString(R.string.km_s_unit_format), number)
+}
+
+@BindingAdapter("listData")
+fun bindingRecyclerView(recyclerView: RecyclerView, data:List<Asteroid>?) {
+    val adapter = recyclerView.adapter as AsteroidRvAdapter
+    adapter.submitList(data)
 }

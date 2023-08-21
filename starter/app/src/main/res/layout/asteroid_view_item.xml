@@ -10,7 +10,6 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/asteroidItemLayout"
-        android:background="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="40dp">
@@ -32,7 +31,7 @@
             android:layout_height="36dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="item date here"
+            android:text="@{asteroidItems.closeApproachDate}"
             android:textColor="#E91E63"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/itemId" />
@@ -44,7 +43,7 @@
             android:layout_marginStart="36dp"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="26dp"
-            android:text="@{asteroidItems."
+            app:statusIcon="@{asteroidItems.potentiallyHazardous}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/itemDate"
             app:layout_constraintTop_toTopOf="parent"

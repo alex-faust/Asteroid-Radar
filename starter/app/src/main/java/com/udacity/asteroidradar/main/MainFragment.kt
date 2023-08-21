@@ -26,7 +26,6 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
 
         binding.asteroidRecycler.adapter = AsteroidRvAdapter(AsteroidRvAdapter.OnClickListener {
-            Log.v("find me","clicked")
             mainViewModel.displayAsteroidDetails(it)
         })
 
