@@ -1,19 +1,23 @@
 package com.udacity.asteroidradar.main
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.api.AsteroidApiService
-import com.udacity.asteroidradar.models.Asteroid
+import com.udacity.asteroidradar.api.AsteroidApi
+import com.udacity.asteroidradar.api.AsteroidFilter
+import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.getDatabase
 import com.udacity.asteroidradar.network.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 enum class AsteroidApiStatus { LOADING, ERROR, DONE }
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _asteroids = MutableLiveData<ArrayList<Asteroid>>()
     val asteroids: LiveData<ArrayList<Asteroid>>
@@ -26,23 +30,37 @@ class MainViewModel : ViewModel() {
     private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid?>()
     val navigateToSelectedAsteroid: MutableLiveData<Asteroid?>
         get() = _navigateToSelectedAsteroid
+
+    private val database =  getDatabase(application)
+    private val asteroidsRepository = AsteroidsRepository(database)
+
     init {
         //getAllAsteroids()
         Log.v("find me","init on mainviewmodel")
         fillUpRV()
+        viewModelScope.launch {
+            asteroidsRepository.refreshAsteroids()
+        }
 
     }
+
+    val asteroidList = asteroidsRepository.asteroids
 
     private fun fillUpRV() {
-        getAllAsteroids()
+        getAllAsteroids(AsteroidFilter.SHOW_WEEK)
     }
 
-    private fun getAllAsteroids() {
+    private fun getAllAsteroids(filter: AsteroidFilter) {
         viewModelScope.launch {
                 _status.value = AsteroidApiStatus.LOADING
                 try {
                     Log.v("find me", "getAllAsteroids")
-                    val jsonResult = AsteroidApiService.AsteroidApi.retrofitService
+                    when(filter) {
+                        AsteroidFilter.SHOW_SAVED -> ""
+                        AsteroidFilter.SHOW_TODAY -> ""
+                        else -> ""
+                    }
+                    val jsonResult = AsteroidApi.retrofitService
                         .getAsteroids(
                             Constants.START_DATE,
                             Constants.END_DATE,
@@ -56,6 +74,10 @@ class MainViewModel : ViewModel() {
 
             }
         }
+    }
+
+    fun updateFilter(filter: AsteroidFilter) {
+        getAllAsteroids(filter)
     }
 
     fun displayAsteroidDetails(asteroid: Asteroid) {

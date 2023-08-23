@@ -1,15 +1,13 @@
 package com.udacity.asteroidradar.network
 
 import com.squareup.moshi.JsonClass
-import com.udacity.asteroidradar.models.Asteroid
+import com.udacity.asteroidradar.database.AsteroidDatabase
+import com.udacity.asteroidradar.domain.Asteroid
 
-/**
+
 @JsonClass(generateAdapter = true)
 data class NetworkAsteroidContainer(val asteroids: List<NetworkAsteroid>)
 
-/**
- * asteroids represent a devbyte that can be displayed.
- */
 @JsonClass(generateAdapter = true)
 data class NetworkAsteroid(
     val id: Long,
@@ -22,9 +20,8 @@ data class NetworkAsteroid(
     val isPotentiallyHazardous: Boolean
 )
 
-/**
- * Convert Network results to database objects
- */
+//convert data transfer object to database object
+
 fun NetworkAsteroidContainer.asDomainModel(): List<Asteroid> {
     return asteroids.map {
         Asteroid(
@@ -40,9 +37,9 @@ fun NetworkAsteroidContainer.asDomainModel(): List<Asteroid> {
     }
 }
 
-fun NetworkAsteroidContainer.asDatabaseModel(): Array<DatabaseAsteroid> {
-    return asteroids.map {
-        DatabaseAsteroid(
+fun List<Asteroid>.asDatabaseModel(): Array<AsteroidDatabase> {
+    return map {
+        AsteroidDatabase(
             id = it.id,
             codename = it.codename,
             closeApproachDate = it.closeApproachDate,
@@ -50,9 +47,12 @@ fun NetworkAsteroidContainer.asDatabaseModel(): Array<DatabaseAsteroid> {
             estimatedDiameter = it.estimatedDiameter,
             relativeVelocity = it.relativeVelocity,
             distanceFromEarth = it.distanceFromEarth,
-            isPotentiallyHazardous = it.isPotentiallyHazardous
-        )
+            isPotentiallyHazardous = it.isPotentiallyHazardous)
     }.toTypedArray()
 }
 
-        */
+
+
+
+
+
