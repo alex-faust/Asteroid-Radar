@@ -5,11 +5,14 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.AsteroidFilter
+import com.udacity.asteroidradar.api.PicOfDayApi
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.domain.getDatabase
 import com.udacity.asteroidradar.network.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.repository.AsteroidsRepository
@@ -19,6 +22,7 @@ import org.json.JSONObject
 enum class AsteroidApiStatus { LOADING, ERROR, DONE }
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
+    //region values
     private val _asteroids = MutableLiveData<ArrayList<Asteroid>>()
     val asteroids: LiveData<ArrayList<Asteroid>>
         get() = _asteroids
@@ -27,51 +31,93 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val status: LiveData<AsteroidApiStatus>
         get() = _status
 
+    private val _pictureOfDay = MutableLiveData<PictureOfDay?>()
+    val pictureOfDay: LiveData<PictureOfDay?>
+        get() = _pictureOfDay
+
     private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid?>()
     val navigateToSelectedAsteroid: MutableLiveData<Asteroid?>
         get() = _navigateToSelectedAsteroid
 
-    private val database =  getDatabase(application)
+    private val database = getDatabase(application)
     private val asteroidsRepository = AsteroidsRepository(database)
+    //endregion
 
     init {
-        //getAllAsteroids()
-        Log.v("find me","init on mainviewmodel")
-        fillUpRV()
+        Log.v("find me", "init on mainviewmodel")
+        getPictureOfTheDay()
+        getAllAsteroids(AsteroidFilter.SHOW_WEEK)
         viewModelScope.launch {
             asteroidsRepository.refreshAsteroids()
         }
-
     }
 
     val asteroidList = asteroidsRepository.asteroids
 
-    private fun fillUpRV() {
-        getAllAsteroids(AsteroidFilter.SHOW_WEEK)
+    val displayPicOfDay = _pictureOfDay.map {
+        //if(!it?.mediaType.equals("video")) {
+            it?.hdurl
+        //}
+    }
+
+    private fun getPictureOfTheDay() {
+        viewModelScope.launch {
+            Log.v("find me", "made it getPictureOfTheDay")
+            try {
+                _status.value = AsteroidApiStatus.LOADING
+                Log.v("find me", "made it inside try block")
+                val jsonResult = PicOfDayApi.retrofitService.getPicOfDay()
+                Log.v("find me", "value is $jsonResult")
+                _pictureOfDay.value = jsonResult
+               _status.value = AsteroidApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = AsteroidApiStatus.ERROR
+            }
+        }
     }
 
     private fun getAllAsteroids(filter: AsteroidFilter) {
         viewModelScope.launch {
-                _status.value = AsteroidApiStatus.LOADING
-                try {
-                    Log.v("find me", "getAllAsteroids")
-                    when(filter) {
-                        AsteroidFilter.SHOW_SAVED -> ""
-                        AsteroidFilter.SHOW_TODAY -> ""
-                        else -> ""
+            _status.value = AsteroidApiStatus.LOADING
+            try {
+                val jsonResult: String
+                when (filter) {
+                    AsteroidFilter.SHOW_SAVED -> {
+                        //_asteroids.value = asteroidList
+                        viewModelScope.launch {
+                            asteroidsRepository.refreshAsteroids()
+                        }
                     }
-                    val jsonResult = AsteroidApi.retrofitService
-                        .getAsteroids(
-                            Constants.START_DATE,
-                            Constants.END_DATE,
-                            Constants.API_KEY)
-                    Log.v("find me", "raw data returned is $jsonResult")
-                    _asteroids.value = parseAsteroidsJsonResult(JSONObject(jsonResult))
-                    _status.value = AsteroidApiStatus.DONE
-                } catch (e: Exception) {
-                    _status.value = AsteroidApiStatus.ERROR
-                    _asteroids.value = ArrayList()
 
+                    AsteroidFilter.SHOW_TODAY -> {
+
+                        jsonResult = AsteroidApi.retrofitService
+                            .getAsteroids(
+                                Constants.START_DATE,
+                                Constants.END_DATE,
+                                Constants.API_KEY
+                            )
+                        _asteroids.value = parseAsteroidsJsonResult(
+                            JSONObject(jsonResult), true
+                        )
+                    }
+
+                    else -> {
+                        jsonResult = AsteroidApi.retrofitService
+                            .getAsteroids(
+                                Constants.START_DATE,
+                                Constants.END_DATE,
+                                Constants.API_KEY
+                            )
+                        _asteroids.value = parseAsteroidsJsonResult(
+                            JSONObject(jsonResult), false
+                        )
+                    }
+                }
+                _status.value = AsteroidApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = AsteroidApiStatus.ERROR
+                _asteroids.value = ArrayList()
             }
         }
     }
@@ -88,7 +134,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToSelectedAsteroid.value = null
     }
 
+    fun displayPictureOfDay(pictureOfDay: PictureOfDay) {
+        _pictureOfDay.value = pictureOfDay
+    }
 
+    fun displayPictureOfDayComplete() {
+        _pictureOfDay.value = null
+    }
 }
 
 

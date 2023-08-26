@@ -11,7 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/asteroidItemLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:paddingBottom="40dp">
 
         <TextView
@@ -43,10 +43,10 @@
             android:layout_marginStart="36dp"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="26dp"
-            app:statusIcon="@{asteroidItems.potentiallyHazardous}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/itemDate"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@tools:sample/backgrounds/scenic"/>
+            app:statusIcon="@{asteroidItems.potentiallyHazardous}"
+            tools:src="@tools:sample/backgrounds/scenic" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

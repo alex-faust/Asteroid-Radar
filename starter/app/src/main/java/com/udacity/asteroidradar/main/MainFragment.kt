@@ -33,16 +33,6 @@ class MainFragment : Fragment() {
                 mainViewModel.displayAsteroidDetailsComplete()
             }
         }
-
-        /*mainViewModel.asteroidList.observe(viewLifecycleOwner) {
-            asteroids?.apply {
-
-            }
-        }*/
-
-
-
-
         return binding.root
     }
 

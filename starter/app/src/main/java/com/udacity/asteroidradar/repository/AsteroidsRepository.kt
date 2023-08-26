@@ -27,7 +27,7 @@ class AsteroidsRepository(private val database: DatabaseAsteroids) {
                     Constants.START_DATE,
                     Constants.END_DATE,
                     Constants.API_KEY)
-            val asteroidList = parseAsteroidsJsonResult(JSONObject(asteroidResponse))
+            val asteroidList = parseAsteroidsJsonResult(JSONObject(asteroidResponse), false)
             database.asteroidDao.insertAll(*asteroidList.asDatabaseModel())
         }
     }

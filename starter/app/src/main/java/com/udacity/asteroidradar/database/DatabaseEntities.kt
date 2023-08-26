@@ -31,3 +31,5 @@ fun List<AsteroidDatabase>.asDomainModel(): List<Asteroid> {
             isPotentiallyHazardous = it.isPotentiallyHazardous)
     }
 }
+
+
