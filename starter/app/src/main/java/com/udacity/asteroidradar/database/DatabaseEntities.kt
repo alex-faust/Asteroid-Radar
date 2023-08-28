@@ -2,7 +2,9 @@ package com.udacity.asteroidradar.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.PictureOfDay
 
 
 @Entity
@@ -28,8 +30,27 @@ fun List<AsteroidDatabase>.asDomainModel(): List<Asteroid> {
             estimatedDiameter = it.estimatedDiameter,
             relativeVelocity = it.relativeVelocity,
             distanceFromEarth = it.distanceFromEarth,
-            isPotentiallyHazardous = it.isPotentiallyHazardous)
+            isPotentiallyHazardous = it.isPotentiallyHazardous
+        )
     }
 }
 
+@Entity
+data class PictureDatabase constructor(
+    @PrimaryKey
+    val mediaType: String,
+    val title: String,
+    val explanation: String,
+    val hdurl: String
+)
+
+fun PictureOfDay.asDomainModel(): PictureOfDay {
+    return PictureOfDay(
+        mediaType = mediaType,
+        title = title,
+        explanation = explanation,
+        hdurl = hdurl
+    )
+
+}
 

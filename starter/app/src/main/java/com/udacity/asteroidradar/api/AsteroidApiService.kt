@@ -50,6 +50,8 @@ object PicOfDayApi {
     val retrofitService: AsteroidApiService by lazy {
         retrofit.create(AsteroidApiService::class.java)
     }
+
+    val picture = retrofit.create(AsteroidApiService::class.java)
 }
 
 

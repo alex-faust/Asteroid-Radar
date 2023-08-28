@@ -14,8 +14,10 @@ import com.udacity.asteroidradar.api.PicOfDayApi
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.domain.getDatabase
+import com.udacity.asteroidradar.domain.getPictureDatabase
 import com.udacity.asteroidradar.network.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.repository.AsteroidsRepository
+import com.udacity.asteroidradar.repository.PictureRepository
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -41,6 +43,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = getDatabase(application)
     private val asteroidsRepository = AsteroidsRepository(database)
+    private val picDatabase = getPictureDatabase(application)
+    private val pictureRepository = PictureRepository(picDatabase)
     //endregion
 
     init {
@@ -49,27 +53,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getAllAsteroids(AsteroidFilter.SHOW_WEEK)
         viewModelScope.launch {
             asteroidsRepository.refreshAsteroids()
+            pictureRepository.refreshPicture()
+
         }
     }
 
     val asteroidList = asteroidsRepository.asteroids
+    val singlePicture = pictureRepository.picture
 
-    val displayPicOfDay = _pictureOfDay.map {
-        //if(!it?.mediaType.equals("video")) {
+    var displayPicOfDay = _pictureOfDay.map {
+        if (!it?.mediaType.equals("video")) {
             it?.hdurl
-        //}
+            //it?.explanation
+        } else {
+            //maybe go into database and get the last picture?
+            TODO("take a snapshot of video?")
+        }
+    }
+
+    var picOfDayContentDescription = _pictureOfDay.map {
+        it?.explanation
     }
 
     private fun getPictureOfTheDay() {
         viewModelScope.launch {
-            Log.v("find me", "made it getPictureOfTheDay")
             try {
                 _status.value = AsteroidApiStatus.LOADING
-                Log.v("find me", "made it inside try block")
                 val jsonResult = PicOfDayApi.retrofitService.getPicOfDay()
-                Log.v("find me", "value is $jsonResult")
                 _pictureOfDay.value = jsonResult
-               _status.value = AsteroidApiStatus.DONE
+                _status.value = AsteroidApiStatus.DONE
             } catch (e: Exception) {
                 _status.value = AsteroidApiStatus.ERROR
             }
@@ -83,9 +95,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val jsonResult: String
                 when (filter) {
                     AsteroidFilter.SHOW_SAVED -> {
-                        //_asteroids.value = asteroidList
                         viewModelScope.launch {
-                            asteroidsRepository.refreshAsteroids()
+                            asteroidsRepository.retrieveAsteroids()
+
                         }
                     }
 
@@ -124,6 +136,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateFilter(filter: AsteroidFilter) {
         getAllAsteroids(filter)
+        getPictureOfTheDay()
     }
 
     fun displayAsteroidDetails(asteroid: Asteroid) {

@@ -8,5 +8,6 @@ import kotlinx.parcelize.Parcelize
 data class PictureOfDay(
     @Json(name = "media_type") val mediaType: String,
     @Json(name = "title") val title: String,
+    @Json(name = "explanation") val  explanation: String,
     @Json(name = "hdurl") val hdurl: String
 ) : Parcelable
