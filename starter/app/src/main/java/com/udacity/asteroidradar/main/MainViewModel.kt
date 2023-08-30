@@ -8,20 +8,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.api.AsteroidApi
-import com.udacity.asteroidradar.api.AsteroidFilter
 import com.udacity.asteroidradar.api.PicOfDayApi
 import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.domain.getDatabase
 import com.udacity.asteroidradar.domain.getPictureDatabase
-import com.udacity.asteroidradar.network.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.repository.AsteroidsRepository
 import com.udacity.asteroidradar.repository.PictureRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import timber.log.Timber
 
 enum class AsteroidApiStatus { LOADING, ERROR, DONE }
 enum class AsteroidFilter { SHOW_TODAY, SHOW_WEEK, SHOW_SAVED }
@@ -48,11 +42,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val navigateToSelectedAsteroid: MutableLiveData<Asteroid?>
         get() = _navigateToSelectedAsteroid
 
-    private val _sort = MutableLiveData<String>()
-    val sort: LiveData<String>
-        get() = _sort
-
-
     private val database = getDatabase(application)
     private val asteroidsRepository = AsteroidsRepository(database)
     private val picDatabase = getPictureDatabase(application)
@@ -62,14 +51,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         getPictureOfTheDay()
+        getLogs()
         getAllAsteroids(AsteroidFilter.SHOW_WEEK)
+        //getAllAsteroids(AsteroidFilter.SHOW_WEEK)
         viewModelScope.launch {
             asteroidsRepository.refreshAsteroids()
             pictureRepository.refreshPicture()
         }
     }
 
-    val asteroidList = asteroidsRepository.asteroids
+    val asteroidList: LiveData<List<Asteroid>> = filter.switchMap { filters ->
+        //using switchMap makes it so the value is always updated when value is switched
+        when(filters) {
+            AsteroidFilter.SHOW_TODAY -> asteroidsRepository.asteroidsToday
+            AsteroidFilter.SHOW_SAVED -> asteroidsRepository.asteroidsSaved
+            else -> asteroidsRepository.asteroidsWeek
+        }
+    }
+
+    fun getLogs() {
+        Log.i("find me", "asteroidsToday is ${asteroidsRepository.asteroidsToday}")
+        Log.i("find me", "asteroidsWeek is ${asteroidsRepository.asteroidsWeek}")
+        Log.i("find me", "asteroidsSaved is ${asteroidsRepository.asteroidsSaved}")
+    }
 
     var displayPicOfDay = _pictureOfDay.map {
         if (!it?.mediaType.equals("video")) {
@@ -97,6 +101,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+
     private fun getAllAsteroids(filter: AsteroidFilter) {
         viewModelScope.launch {
             _status.value = AsteroidApiStatus.LOADING
@@ -104,12 +110,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 when (filter) {
                     AsteroidFilter.SHOW_TODAY -> {
                        _asteroids.value = asteroidsRepository.asteroidsToday.value
-                        Timber.tag("find me").i("${asteroidsRepository.asteroidsToday.value}")
+                    }
+                    AsteroidFilter.SHOW_SAVED -> {
+                        _asteroids.value = asteroidsRepository.asteroidsSaved.value
                     }
                     else -> {
-                        _asteroids.value = asteroidsRepository.asteroids.value
+                        _asteroids.value = asteroidsRepository.asteroidsWeek.value
                     }
                 }
+                Log.i("find me", "asteroids is ${_asteroids.value}")
                 _status.value = AsteroidApiStatus.DONE
             } catch (e: Exception) {
                 _status.value = AsteroidApiStatus.ERROR
@@ -119,7 +128,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateFilter(filter: AsteroidFilter) {
-        getAllAsteroids(filter)
+        //getAllAsteroids(filter)
         getPictureOfTheDay()
     }
 

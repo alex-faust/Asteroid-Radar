@@ -11,6 +11,7 @@ import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.network.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.net.UnknownHostException
 
 class PictureRepository(private val database: DatabasePicture) {
@@ -29,10 +30,10 @@ class PictureRepository(private val database: DatabasePicture) {
         withContext(Dispatchers.IO) {
             try {
                 val pictureResponse = PicOfDayApi.picture.getPicOfDay()
-                Log.v("find me", "picture response is $pictureResponse")
+                Timber.tag("find me").i("picture response is $pictureResponse")
                 database.pictureDao.insertPicture(pictureResponse.asDatabaseModel())
             } catch (exception: UnknownHostException) {
-                Log.e("find me", "No network for refresh picture")
+                Timber.tag("find me").i("No network for refresh picture")
             }
         }
     }

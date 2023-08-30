@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
-import com.udacity.asteroidradar.api.AsteroidFilter
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
@@ -27,13 +26,6 @@ class MainFragment : Fragment() {
             mainViewModel.displayAsteroidDetails(it)
         })
 
-        mainViewModel.filter.observe(viewLifecycleOwner) {
-            //mainViewModel.updateFilter(mainViewModel.filter)
-        }
-        mainViewModel.asteroidList.observe(viewLifecycleOwner) {asteroid ->
-            //mainViewModel.asteroids = asteroid
-
-        }
 
         mainViewModel.navigateToSelectedAsteroid.observe(viewLifecycleOwner) {
             if (null != it) {

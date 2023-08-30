@@ -14,19 +14,11 @@ import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.database.PictureDatabase
 
-enum class AsteroidFilter(val value: String) {
-    SHOW_TODAY(""),
-    SHOW_SAVED(""),
-    SHOW_WEEK("select * from asteroiddatabase")
-}
 @Dao
 interface AsteroidDao {
     //get videos from the cache
-    @Query("select * from asteroiddatabase")
-    fun getAsteroidsFromDB(): LiveData<List<AsteroidDatabase>>
-
-    //@Query("select * from asteroiddatabase where closeApproachDate = ${Constants.START_DATE}")
-    //fun getTodayAsteroidsFromCache(): LiveData<List<AsteroidDatabase>>
+    @Query("select * FROM asteroiddatabase WHERE closeApproachDate >= :currentDate ORDER BY closeApproachDate ASC")
+    fun getWeeksAsteroids(currentDate: String): LiveData<List<AsteroidDatabase>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg asteroids: AsteroidDatabase)
@@ -34,8 +26,11 @@ interface AsteroidDao {
     @Query("delete from asteroiddatabase")
     fun removeAllAsteroidsFromDB()
 
-    @Query("select * from asteroiddatabase where closeApproachDate = date(${Constants.START_DATE}) order by date(closeApproachDate) asc")
-    fun getTodayAsteroids(): LiveData<List<AsteroidDatabase>>
+    @Query("select * from asteroiddatabase where closeApproachDate = :currentDate order by closeApproachDate asc")
+    fun getTodayAsteroids(currentDate: String): LiveData<List<AsteroidDatabase>>
+
+    @Query("select * from asteroiddatabase order by date(closeApproachDate) asc")
+    fun getSavedAsteroids(): LiveData<List<AsteroidDatabase>>
 }
 @Database(entities = [AsteroidDatabase::class], version = 1)
 abstract class DatabaseAsteroids: RoomDatabase() {
