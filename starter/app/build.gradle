@@ -78,6 +78,9 @@ dependencies {
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$version_work"
 
+    // Logging
+    implementation "com.jakewharton.timber:timber:$version_timber"
+
     // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

@@ -27,6 +27,14 @@ class MainFragment : Fragment() {
             mainViewModel.displayAsteroidDetails(it)
         })
 
+        mainViewModel.filter.observe(viewLifecycleOwner) {
+            //mainViewModel.updateFilter(mainViewModel.filter)
+        }
+        mainViewModel.asteroidList.observe(viewLifecycleOwner) {asteroid ->
+            //mainViewModel.asteroids = asteroid
+
+        }
+
         mainViewModel.navigateToSelectedAsteroid.observe(viewLifecycleOwner) {
             if (null != it) {
                 this.findNavController().navigate(MainFragmentDirections.actionShowDetail(it))

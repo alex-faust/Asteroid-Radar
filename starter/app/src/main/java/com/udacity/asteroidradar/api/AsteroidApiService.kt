@@ -14,7 +14,7 @@ import retrofit2.http.Query
 enum class AsteroidFilter(val value: String) {
     SHOW_TODAY(""),
     SHOW_SAVED(""),
-    SHOW_WEEK("")
+    SHOW_WEEK("select * from asteroiddatabase")
 }
 
 private val moshi = Moshi.Builder()
@@ -34,6 +34,7 @@ interface AsteroidApiService {
         @Query("end_Date") endDate: String,
         @Query("api_Key") apiKey: String
     ): String
+
 
     @GET("planetary/apod?api_key=${Constants.API_KEY}")
     suspend fun getPicOfDay(): PictureOfDay
