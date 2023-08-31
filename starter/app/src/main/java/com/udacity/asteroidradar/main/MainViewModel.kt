@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import com.udacity.asteroidradar.api.PicOfDayApi
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.domain.getDatabase
 import com.udacity.asteroidradar.domain.getPictureDatabase
 import com.udacity.asteroidradar.repository.AsteroidsRepository
@@ -25,6 +27,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val filter = MutableLiveData<AsteroidFilter>()
 
+    private val pictureOfDay = MutableLiveData<PictureOfDay?>()
+
     private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid?>()
     val navigateToSelectedAsteroid: MutableLiveData<Asteroid?>
         get() = _navigateToSelectedAsteroid
@@ -36,6 +40,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //endregion
 
     init {
+            getPictureOfTheDay()
+
         viewModelScope.launch {
             asteroidsRepository.refreshAsteroids()
             pictureRepository.refreshPicture()
@@ -66,6 +72,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         it.explanation
     }
 
+    private fun getPictureOfTheDay() {
+        viewModelScope.launch {
+            try {
+                _status.value = AsteroidApiStatus.LOADING
+                val jsonResult = PicOfDayApi.picRetrofitService.getPicOfDay()
+                pictureOfDay.value = jsonResult
+                _status.value = AsteroidApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = AsteroidApiStatus.ERROR
+            }
+        }
+    }
     fun updateFilter(filters: AsteroidFilter) {
         filter.value = filters
     }
