@@ -7,7 +7,6 @@ import com.udacity.asteroidradar.domain.PictureOfDay
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -32,18 +31,15 @@ interface AsteroidApiService {
 }
 
 object AsteroidApi {
-    val retrofitService: AsteroidApiService by lazy {
+    val astRetrofitService: AsteroidApiService by lazy {
         retrofit.create(AsteroidApiService::class.java)
     }
-    val asteroids = retrofit.create(AsteroidApiService::class.java)
 }
 
 object PicOfDayApi {
-    val retrofitService: AsteroidApiService by lazy {
+    val picRetrofitService: AsteroidApiService by lazy {
         retrofit.create(AsteroidApiService::class.java)
     }
-
-    val picture = retrofit.create(AsteroidApiService::class.java)
 }
 
 

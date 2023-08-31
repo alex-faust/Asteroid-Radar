@@ -1,7 +1,5 @@
 package com.udacity.asteroidradar.repository
 
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.udacity.asteroidradar.api.PicOfDayApi
@@ -16,7 +14,7 @@ import java.net.UnknownHostException
 
 class PictureRepository(private val database: DatabasePicture) {
 
-    val picture: LiveData<PictureOfDay> = database.pictureDao
+    val pictureRepo: LiveData<PictureOfDay> = database.pictureDao
         .getLastEntryFromCache().map {
             PictureOfDay(
                 mediaType = it.mediaType,
@@ -29,7 +27,7 @@ class PictureRepository(private val database: DatabasePicture) {
     suspend fun refreshPicture() {
         withContext(Dispatchers.IO) {
             try {
-                val pictureResponse = PicOfDayApi.picture.getPicOfDay()
+                val pictureResponse = PicOfDayApi.picRetrofitService.getPicOfDay()
                 Timber.tag("find me").i("picture response is $pictureResponse")
                 database.pictureDao.insertPicture(pictureResponse.asDatabaseModel())
             } catch (exception: UnknownHostException) {

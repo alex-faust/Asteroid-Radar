@@ -4,20 +4,17 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.database.PictureDatabase
 
 @Dao
 interface AsteroidDao {
-    //get videos from the cache
-    @Query("select * FROM asteroiddatabase WHERE closeApproachDate >= :currentDate ORDER BY closeApproachDate ASC")
+    @Query("select * FROM asteroiddatabase WHERE closeApproachDate > :currentDate ORDER BY closeApproachDate ASC")
     fun getWeeksAsteroids(currentDate: String): LiveData<List<AsteroidDatabase>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -26,11 +23,11 @@ interface AsteroidDao {
     @Query("delete from asteroiddatabase")
     fun removeAllAsteroidsFromDB()
 
-    @Query("select * from asteroiddatabase where closeApproachDate = :currentDate order by closeApproachDate asc")
+    @Query("select * from asteroiddatabase where closeApproachDate = :currentDate")
     fun getTodayAsteroids(currentDate: String): LiveData<List<AsteroidDatabase>>
 
-    @Query("select * from asteroiddatabase order by date(closeApproachDate) asc")
-    fun getSavedAsteroids(): LiveData<List<AsteroidDatabase>>
+    @Query("select * FROM asteroiddatabase WHERE closeApproachDate >= :currentDate ORDER BY closeApproachDate ASC")
+    fun getSavedAsteroids(currentDate: String): LiveData<List<AsteroidDatabase>>
 }
 @Database(entities = [AsteroidDatabase::class], version = 1)
 abstract class DatabaseAsteroids: RoomDatabase() {
