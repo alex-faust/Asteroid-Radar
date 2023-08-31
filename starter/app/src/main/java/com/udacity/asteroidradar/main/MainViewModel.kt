@@ -48,16 +48,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /*val asteroidList: LiveData<List<Asteroid>> = filter.switchMap { filters ->
+    val asteroidList: LiveData<List<Asteroid>> = filter.switchMap { filters ->
         //using switchMap makes it so the value is always updated when value is switched
         when(filters) {
-            AsteroidFilter.SHOW_TODAY -> asteroidsRepository.asteroidsWeek
-            AsteroidFilter.SHOW_SAVED -> asteroidsRepository.asteroidsWeek
+            AsteroidFilter.SHOW_TODAY -> asteroidsRepository.asteroidsToday
+            AsteroidFilter.SHOW_SAVED -> asteroidsRepository.asteroidsSaved
             else -> asteroidsRepository.asteroidsWeek
         }
-    }*/
+    }
 
-    val asteroidList = asteroidsRepository.asteroidsWeek
+    //val asteroidList = asteroidsRepository.asteroidsWeek
 
     var displayPicOfDay = pictureRepository.pictureRepo.map {
         if (it.mediaType != "video") {
