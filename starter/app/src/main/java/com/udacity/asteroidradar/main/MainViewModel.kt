@@ -40,7 +40,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     //endregion
 
     init {
-            getPictureOfTheDay()
+        getPictureOfTheDay()
+        updateFilter(AsteroidFilter.SHOW_WEEK)
 
         viewModelScope.launch {
             asteroidsRepository.refreshAsteroids()
@@ -56,8 +57,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             else -> asteroidsRepository.asteroidsWeek
         }
     }
-
-    //val asteroidList = asteroidsRepository.asteroidsWeek
 
     var displayPicOfDay = pictureRepository.pictureRepo.map {
         if (it.mediaType != "video") {
